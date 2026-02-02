@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Te amo Naydelin 💖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(120deg, #ff9a9e 0%, #fecfef 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Para que no haya scroll si los elementos se mueven */
+            text-align: center;
+            position: relative;
+        }
+
+        /* Contenedor principal estilo tarjeta */
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 90%;
+            width: 500px;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: #ff4d6d;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .gif-container {
+            margin-bottom: 20px;
+        }
+        
+        .gif-container img {
+            max-width: 150px;
+            border-radius: 10px;
+        }
+
+        /* --- BOTONES --- */
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap; /* Para que se ajusten en móviles */
+            min-height: 80px; /* Espacio para que crezcan */
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease; /* Suavidad en cambios normales */
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            outline: none;
+        }
+
+        /* Estilo Botón SÍ */
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+            /* La transición para el transform (crecimiento) debe ser suave */
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        #yesBtn:hover {
+            background-color: #e63950;
+            transform: scale(1.05);
+        }
+
+        /* Estilo Botón NO */
+        #noBtn {
+            background-color: #f1f1f1;
+            color: #333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #noBtn:hover {
+            background-color: #ddd;
+        }
+
+        /* --- MENSAJE FINAL (Oculto al inicio) --- */
+        #success-message {
+            display: none;
+        }
+
+        .heart-text {
+            font-size: 4rem;
+            animation: beat 1s infinite;
+        }
+
+        /* --- ANIMACIONES DE FONDO --- */
+        .bg-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -100px;
+            color: rgba(255, 255, 255, 0.5);
+            animation: floatUp 10s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Animación de confeti simple en CSS para el final */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: fall 3s linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-hearts" id="bgHearts"></div>
+
+    <div class="container">
+        <div id="question-screen">
+            <div class="gif-container">
+                <div style="font-size: 80px;">🧸</div>
+            </div>
+            
+            <h1>¿Naydelin quieres ser mi Valentine? 💖</h1>
+            <p>Harías mis días mucho más felices...</p>
+
+            <div class="buttons">
+                <button id="yesBtn" class="btn">¡Sí, claro!💘</button>
+                <button id="noBtn" class="btn">No 😢</button>
+            </div>
+        </div>
+
+        <div id="success-message">
+            <div class="heart-text">💕</div>
+            <h1>¡Sabía que dirías que sí mi amor!</h1>
+            <p>Te amo mucho mi princesa.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- VARIABLES ---
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const questionScreen = document.getElementById('question-screen');
+        const successMessage = document.getElementById('success-message');
+        const body = document.querySelector('body');
+
+        // Estado inicial del tamaño del botón Sí
+        let currentScale = 1;
+
+        // --- LÓGICA DEL BOTÓN "NO" ---
+        noBtn.addEventListener('click', () => {
+            // 1. Aumentar el factor de escala
+            currentScale += 0.3; // Crece un 30% cada vez
+            
+            // 2. Aplicar el nuevo tamaño al botón Sí
+            yesBtn.style.transform = `scale(${currentScale})`;
+            
+            // Opcional: Hacer que el botón Sí mueva al No o ocupe más espacio
+            // Ajustamos el margen para que no se superpongan demasiado rápido
+            yesBtn.style.margin = `${currentScale * 2}px`;
+
+            // Frases opcionales divertidas para el botón No (puedes quitarlas si prefieres)
+            const phrases = ["¿Segura?", "¿De verdad?", "¡Piénsalo bien!", "¡Mira el otro botón!", "¡No puedes decir no!"];
+            noBtn.innerText = phrases[Math.floor(Math.random() * phrases.length)];
+        });
+
+        // --- LÓGICA DEL BOTÓN "SÍ" ---
+        yesBtn.addEventListener('click', () => {
+            // 1. Ocultar la pregunta y mostrar el mensaje
+            questionScreen.style.display = 'none';
+            successMessage.style.display = 'block';
+
+            // 2. Lanzar confeti
+            createConfetti();
+        });
+
+        // --- FUNCIONES EXTRAS ---
+
+        // Función para crear corazones flotantes en el fondo al cargar
+        function createFloatingHearts() {
+            const bgHearts = document.getElementById('bgHearts');
+            const heartEmojis = ['💖', '💕', '🌸', '😻', '✨'];
+            
+            for(let i=0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerText = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 5) + 's'; // Entre 5 y 8s
+                heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                bgHearts.appendChild(heart);
+            }
+        }
+
+        // Función para el efecto de confeti final
+        function createConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = -10 + 'px';
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                body.appendChild(confetti);
+
+                // Eliminar el confeti del DOM después de caer
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Iniciar fondo
+        createFloatingHearts();
+
+    </script>
+</body>
+</html>
